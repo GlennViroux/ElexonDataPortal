@@ -3,6 +3,8 @@
 __all__ = ['RequestError', 'check_status', 'check_capping', 'expand_cols', 'parse_xml_response', 'dt_rng_to_SPs',
            'parse_local_datetime']
 
+from datetime import datetime
+
 # Cell
 import numpy as np
 import pandas as pd
@@ -115,6 +117,13 @@ def dt_rng_to_SPs(
     tz_label = tz.lower().replace('/', '_')
     df_dates_SPs.index.name = f'datetime_{tz_label}'
     df_dates_SPs['SP'] = df_dates_SPs['SP'].astype(int)
+
+    if len(df_dates_SPs) and (tz := df_dates_SPs.index[0].tz) and isinstance(start_date, datetime):
+        if not start_date.tz:
+            start_date = start_date.tz_localize(tz)
+
+        if not end_date.tz:
+            end_date = end_date.tz_localize(tz)
     
     df_dates_SPs = df_dates_SPs[start_date:end_date]
 
